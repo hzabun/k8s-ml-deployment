@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-server
+  labels:
+    app: mlflow-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow-server
+  template:
+    metadata:
+      labels:
+        app: mlflow-server
+    spec:
+      containers:
+        - name: mlflow-server
+          image: python:3.9-slim
+          command: ["/bin/bash"]
+          args:
+            - -c
+            - |
+              pip install mlflow==3.3.1
+              mlflow server --host 0.0.0.0 --port 5000 --default-artifact-root /mlflow/artifacts
+          ports:
+            - containerPort: 5000
+          env:
+            - name: MLFLOW_BACKEND_STORE_URI
+              value: "sqlite:///mlflow/mlflow.db"
+          volumeMounts:
+            - name: mlflow-data
+              mountPath: /mlflow
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: mlflow-data
+          persistentVolumeClaim:
+            claimName: mlflow-pvc

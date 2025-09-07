@@ -1,0 +1,28 @@
+# MLflow Server Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-server
+spec:
+  selector:
+    app: mlflow-server
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP
+---
+# NodePort Service for external access to MLflow UI
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-server-nodeport
+spec:
+  selector:
+    app: mlflow-server
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+      nodePort: 30500
+  type: NodePort

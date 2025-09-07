@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ml-training-job
+  labels:
+    app: ml-training
+spec:
+  template:
+    metadata:
+      labels:
+        app: ml-training
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-mlflow
+          image: curlimages/curl:latest
+          command: ["sh", "-c"]
+          args:
+            - |
+              until curl -f http://mlflow-server:5000/health; do
+                echo "Waiting for MLflow server..."
+                sleep 5
+              done
+              echo "MLflow server is ready!"
+      containers:
+        - name: ml-training
+          image: ml-training:latest
+          env:
+            - name: MLFLOW_TRACKING_URI
+              value: "http://mlflow-server:5000"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+  backoffLimit: 3
