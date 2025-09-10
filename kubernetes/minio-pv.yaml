@@ -9,16 +9,4 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /data/minio
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-minio
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: standard
-  resources:
-    requests:
-      storage: 5Gi
+    path: /tmp/minio
