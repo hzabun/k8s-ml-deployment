@@ -25,9 +25,15 @@ spec:
       containers:
         - name: ml-training
           image: ml-training:latest
+          imagePullPolicy: Never
           env:
             - name: MLFLOW_TRACKING_URI
               value: "http://mlflow-server:5000"
+          envFrom:
+            - configMapRef:
+                name: minio-config
+            - secretRef:
+                name: minio-credentials
           resources:
             requests:
               memory: "512Mi"

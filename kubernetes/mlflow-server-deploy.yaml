@@ -16,19 +16,18 @@ spec:
     spec:
       containers:
         - name: mlflow-server-container
-          image: mlflow-server-image:latest
+          image: mlflow-server:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 5000
           volumeMounts:
             - name: mlflow-db-storage
               mountPath: /mlflow
-          env:
-            - name: MLFLOW_S3_ENDPOINT_URL
-              value: http://minio.minio.svc.cluster.local:9000
-            - name: AWS_ACCESS_KEY_ID
-              value: minioadmin
-            - name: AWS_SECRET_ACCESS_KEY
-              value: minioadmin
+          envFrom:
+            - configMapRef:
+                name: minio-config
+            - secretRef:
+                name: minio-credentials
           resources:
             requests:
               memory: "512Mi"
