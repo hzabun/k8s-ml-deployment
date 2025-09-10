@@ -15,36 +15,28 @@ spec:
         app: mlflow-server
     spec:
       containers:
-        - name: mlflow-server
-          image: python:3.9-slim
-          command: ["/bin/bash"]
-          args:
-            - -c
-            - |
-              pip install mlflow==3.3.1
-              mlflow server --host 0.0.0.0 --port 5000 --default-artifact-root /mlflow/artifacts
+        - name: mlflow-server-container
+          image: mlflow-server-image:latest
           ports:
             - containerPort: 5000
-          env:
-            - name: MLFLOW_BACKEND_STORE_URI
-              value: "sqlite:///mlflow/mlflow.db"
           volumeMounts:
-            - name: mlflow-data
+            - name: mlflow-db-storage
               mountPath: /mlflow
+          env:
+            - name: MLFLOW_S3_ENDPOINT_URL
+              value: http://minio.minio.svc.cluster.local:9000
+            - name: AWS_ACCESS_KEY_ID
+              value: minioadmin
+            - name: AWS_SECRET_ACCESS_KEY
+              value: minioadmin
           resources:
             requests:
-              memory: "256Mi"
+              memory: "512Mi"
               cpu: "250m"
             limits:
-              memory: "512Mi"
+              memory: "1Gi"
               cpu: "500m"
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 5000
-            initialDelaySeconds: 30
-            periodSeconds: 10
       volumes:
-        - name: mlflow-data
+        - name: mlflow-db-storage
           persistentVolumeClaim:
-            claimName: mlflow-pvc
+            claimName: pvc-mlflow-db
