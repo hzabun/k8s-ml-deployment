@@ -2,9 +2,9 @@ import logging
 import os
 from urllib.parse import urlparse
 
-import boto3
 import mlflow
 import pandas as pd
+from boto3.session import Session
 from mlflow.models import infer_signature
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import Ridge
@@ -22,7 +22,7 @@ def download_from_s3(s3_uri, local_path):
     parsed = urlparse(s3_uri)
     bucket = parsed.netloc
     key = parsed.path.lstrip("/")
-    session = boto3.session.Session()
+    session = Session()
     s3 = session.client(
         service_name="s3",
         endpoint_url=os.getenv("MLFLOW_S3_ENDPOINT_URL"),
