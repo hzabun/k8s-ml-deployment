@@ -1,6 +1,8 @@
 import logging
 import os
+from urllib.parse import urlparse
 
+import boto3
 import mlflow
 import pandas as pd
 from mlflow.models import infer_signature
@@ -16,6 +18,20 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def download_from_s3(s3_uri, local_path):
+    parsed = urlparse(s3_uri)
+    bucket = parsed.netloc
+    key = parsed.path.lstrip("/")
+    session = boto3.session.Session()
+    s3 = session.client(
+        service_name="s3",
+        endpoint_url=os.getenv("MLFLOW_S3_ENDPOINT_URL"),
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    )
+    s3.download_file(bucket, key, local_path)
+
+
 def main():
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://mlflow-server:5000")
     mlflow.set_tracking_uri(tracking_uri)
@@ -29,8 +45,13 @@ def main():
         logger.error(f"Failed to connect to MLflow: {e}")
         return
 
+    dataset = os.getenv("DATA_PATH")
+    local_data_path = "data/video_game_sales.csv"
     try:
-        df = pd.read_csv("data/video_game_sales.csv")
+        if dataset and dataset.startswith("s3://"):
+            logger.info(f"Downloading dataset from {dataset} to {local_data_path}")
+            download_from_s3(dataset, local_data_path)
+        df = pd.read_csv(local_data_path)
         logger.info(f"Loaded {len(df)} rows of data")
     except Exception as e:
         logger.error(f"Failed to load data: {e}")

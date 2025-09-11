@@ -29,6 +29,8 @@ spec:
           env:
             - name: MLFLOW_TRACKING_URI
               value: "http://mlflow-server:5000"
+            - name: DATA_PATH
+              value: s3://minio-bucket/new-data/
           envFrom:
             - configMapRef:
                 name: minio-config
