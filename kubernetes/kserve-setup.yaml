@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kserve-sa
+  namespace: default
+secrets:
+  - name: storage-config
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: storage-config
+  namespace: default
+  annotations:
+    serving.kserve.io/s3-endpoint: "minio.minio.svc.cluster.local:9000"
+    serving.kserve.io/s3-usehttps: "0"
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: minioadmin
+  AWS_SECRET_ACCESS_KEY: minioadmin

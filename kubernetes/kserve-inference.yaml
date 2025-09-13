@@ -1,0 +1,17 @@
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: video-game-sales-model
+spec:
+  predictor:
+    serviceAccountName: kserve-sa
+    model:
+      modelFormat:
+        name: mlflow
+      protocolVersion: v2
+      storageUri: "s3://mlflow/1/models/<model-ID>/artifacts"
+      env:
+        - name: S3_VERIFY_SSL
+          value: "0"
+        - name: AWS_S3_FORCE_PATH_STYLE
+          value: "true"
