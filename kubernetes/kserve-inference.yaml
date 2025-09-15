@@ -2,6 +2,10 @@ apiVersion: "serving.kserve.io/v1beta1"
 kind: "InferenceService"
 metadata:
   name: video-game-sales-model
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8082"
+    prometheus.io/path: "/metrics"
 spec:
   predictor:
     serviceAccountName: kserve-sa
@@ -14,4 +18,11 @@ spec:
         - name: S3_VERIFY_SSL
           value: "0"
         - name: AWS_S3_FORCE_PATH_STYLE
+          value: "true"
+        # Enable MLServer metrics on separate port
+        - name: MLSERVER_METRICS_ENDPOINT
+          value: "/metrics"
+        - name: MLSERVER_METRICS_PORT
+          value: "8082"
+        - name: MLSERVER_ENABLE_METRICS
           value: "true"
