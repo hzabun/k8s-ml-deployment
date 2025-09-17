@@ -121,8 +121,8 @@ kubectl apply -f ./kubernetes/mlflow-setup.yaml
 
 5. Run the training job and capture the model ID
 
-   > [!NOTE]  
-   > If the automatic model ID extraction doesn't work, check the training pod logs for the line `Model URI: `
+> [!NOTE]  
+> If the automatic model ID extraction doesn't work, check the training pod logs for the line `Model URI: `
 
 ```bash
 kubectl apply -f ./kubernetes/train-job.yaml
